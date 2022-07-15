@@ -1,4 +1,3 @@
-import { readFile } from "fs/promises"
 import { readPetsFile } from "./shared.js";
 import express from "express"
 import { writeFile } from "fs/promises"
@@ -7,16 +6,25 @@ import { writeFile } from "fs/promises"
 const app = express();
 const PORT = 4000;
 app.use(express.json());
+const unknownHTTP = (req, res, next) => {
+    res.sendStatus(404);
+    next();
+}
+
+app.use((err, req, res, next) => {
+    res.sendStatus(500);
+  });
 
 
 //handle requests with routes
-app.get('/pets', (req,res) => {
+app.get('/pets', (req,res, next) => {
     readPetsFile().then((data) => {
         res.send(data)
     })
+    .catch(next)
 })
 
-app.get('/pets/:id', (req,res) => {
+app.get('/pets/:id', (req,res, next) => {
    const index = req.params.id
     readPetsFile().then((data) => {
         if(data[index]){
@@ -25,17 +33,22 @@ app.get('/pets/:id', (req,res) => {
             res.sendStatus(404)
         }
     })
+    .catch(next)
 })
 
-app.post('/pets', (req,res) => {
+app.post('/pets', (req,res, next) => {
     const newPet = req.body
+    newPet.age = Number(newPet.age)
     readPetsFile().then((data) => {
-        data.push(newPet)
-        return writeFile("pets.json", JSON.stringify(data))
-        .then(() => {
-            res.send(newPet)
-        })
+        if(newPet.age && newPet.kind && newPet.name){
+            data.push(newPet);
+            return writeFile("pets.json", JSON.stringify(data))
+            .then(() => res.send(newPet))
+        } else {
+            res.sendStatus(400)
+        }
     })
+    .catch(next)
 })
 
 //listen on a port
@@ -43,5 +56,5 @@ app.listen(PORT, () => {
     console.log('Listening on Port 4000')
 })
 
-
-module.exports = app;
+app.use(unknownHTTP)
+// module.exports = app;
