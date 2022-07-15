@@ -11,11 +11,6 @@ const unknownHTTP = (req, res, next) => {
     next();
 }
 
-app.use((err, req, res, next) => {
-    res.sendStatus(500);
-  });
-
-
 //handle requests with routes
 app.get('/pets', (req,res, next) => {
     readPetsFile().then((data) => {
@@ -58,3 +53,8 @@ app.listen(PORT, () => {
 
 app.use(unknownHTTP)
 // module.exports = app;
+
+
+app.use((err, req, res, next) => {
+    res.sendStatus(500);
+});
