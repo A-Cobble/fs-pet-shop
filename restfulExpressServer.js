@@ -42,7 +42,7 @@ app.post('/pets', (req,res, next) => {
         if(newPet.age && newPet.kind && newPet.name){
             data.push(newPet);
             return writeFile("pets.json", JSON.stringify(data))
-            .then(() => res.send(newPet).status(201))
+            .then(() => res.status(201).send(newPet))
         } else {
             res.sendStatus(400)
         }
