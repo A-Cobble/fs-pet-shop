@@ -1,11 +1,14 @@
 import { readPetsFile } from "./shared.js";
-import express from "express"
-import { writeFile } from "fs/promises"
+import express from "express";
+import { writeFile } from "fs/promises";
+
+
 
 //Dependencies
 const app = express();
 const PORT = 4000;
 app.use(express.json());
+
 const unknownHTTP = (req, res, next) => {
     res.sendStatus(404);
     next();
@@ -24,7 +27,7 @@ app.get('/pets/:id', (req,res, next) => {
     readPetsFile().then((data) => {
         if(data[index]){
             res.send(data[index])
-        }else{
+        } else {
             res.sendStatus(404)
         }
     })
